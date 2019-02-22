@@ -336,11 +336,11 @@ def main():
     if len(sys.argv) > 1:
         model_save_dir=sys.argv[1]
 
-    ds_dir = "/home/bassel/data/office-actions/office_actions_19/short_clips/resized_frms"
-    training_file = "/home/bassel/data/office-actions/office_actions_19/short_clips/labels/side_only_train_stack_list.txt"
-    testing_file = "/home/bassel/data/office-actions/office_actions_19/short_clips/labels/side_only_test_stack_list.txt"
+    ds_dir = "/home/bassel/data/oa_kinetics/frms"
+    training_file = "/home/bassel/data/oa_kinetics/lbls/actions_stack_list.txt"
+    testing_file = "/home/bassel/data/oa_kinetics/lbls/dummy_test.txt"
     visual_dir = "./visual_dir"
-    run_training(ds_dir, "../c3d_data_preprocessing/side_action_dataset_calculated_mean.npy", visual_dir,
+    run_training(ds_dir, "../c3d_data_preprocessing/oa_kinetics_calculated_mean.npy", visual_dir,
                  5, 32, training_file, testing_file)
 
 
