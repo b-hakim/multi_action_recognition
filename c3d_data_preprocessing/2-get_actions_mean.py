@@ -37,19 +37,22 @@ def calculate_thread_dataset_mean(ds_dir, ds_train_lst, num_frames=16, new_w_h_s
                 print os.path.join(ds_dir, vid_path, "{:04}.jpg".format(i))
             height, width, _ = img.shape
 
-            if (width > height):
-                scale = float(new_w_h_size) / float(height)
+            if height != new_w_h_size or width != new_w_h_size:
+                if (width > height):
+                    scale = float(new_w_h_size) / float(height)
+                else:
+                    scale = float(new_w_h_size) / float(width)
+
+                img = cv2.resize(img, (0, 0), fx=scale, fy=scale)
+
+                height, width, _ = img.shape
+
+                crop_y = int((height - new_w_h_size) / 2)
+                crop_x = int((width - new_w_h_size) / 2)
+
+                stack_frames.append(img[crop_y:crop_y + new_w_h_size, crop_x:crop_x + new_w_h_size, :])
             else:
-                scale = float(new_w_h_size) / float(width)
-
-            img = cv2.resize(img, (0, 0), fx=scale, fy=scale)
-
-            height, width, _ = img.shape
-
-            crop_y = int((height - new_w_h_size) / 2)
-            crop_x = int((width - new_w_h_size) / 2)
-
-            stack_frames.append(img[crop_y:crop_y + new_w_h_size, crop_x:crop_x + new_w_h_size, :])
+                stack_frames.append(img)
 
             # stack_frames.append(img)
 
