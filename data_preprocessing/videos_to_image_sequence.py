@@ -18,6 +18,25 @@ class ThreadVideoToImages(threading.Thread):
             select_all_frames_from_video(vid, self.output_path)
 
 
+def resize_img(img, new_w_h_size=112):
+    height, width, _ = img.shape
+
+    if (width > height):
+        scale = float(new_w_h_size) / float(height)
+    else:
+        scale = float(new_w_h_size) / float(width)
+
+    img = cv2.resize(img, (0, 0), fx=scale, fy=scale)
+
+    height, width, _ = img.shape
+
+    crop_y = int((height - new_w_h_size) / 2)
+    crop_x = int((width - new_w_h_size) / 2)
+    img = img[crop_y:crop_y + new_w_h_size, crop_x:crop_x + new_w_h_size, :]
+
+    return img
+
+
 def select_all_frames_from_video(video_path, output_path):
     video_name = utl.get_file_name_from_path_without_extention(video_path)
     save_frame_path = os.path.join(output_path, video_name)
@@ -32,6 +51,7 @@ def select_all_frames_from_video(video_path, output_path):
     #     return
 
     while success:
+        image = resize_img(image)
         count += 1
         save_frame_full_path = save_frame_path + '/{:04}'.format(count) + ".jpg"
         cv2.imwrite(save_frame_full_path, image)
@@ -64,5 +84,6 @@ def SelectFramesFromVideosDataset(dataset_dir, output_path, n_threads=12):
 
 
 if __name__ == '__main__':
+    # Note it deletes original video
     SelectFramesFromVideosDataset('/home/bassel/data/oa_kinetics/videos',
                           '/home/bassel/data/oa_kinetics/frms')
