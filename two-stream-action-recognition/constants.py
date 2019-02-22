@@ -1,0 +1,7 @@
+from enum import Enum
+
+
+class EXPERIMENTS(Enum):
+    MAIN_AUTHOR = 1,
+    SUMMARIZE_VIDEO_10X_10Y_CHANNELS = 2
+    MULTIPLE_STEPS__CLIPS_START_STEP_END = 3
