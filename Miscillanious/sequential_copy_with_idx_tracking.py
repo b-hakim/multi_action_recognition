@@ -23,14 +23,13 @@ def copy_frames_to_frames_keeping_numbers(cls_ind, from_vds, to_frm_ds):
         vids_copy = os.listdir(os.path.join(from_vds, class_to_copy))
 
         for vid_copy in vids_copy:
-            files = glob.glob(os.path.join(from_vds, class_to_copy, vid_copy, "*"))
+            # files = glob.glob(os.path.join(from_vds, class_to_copy, vid_copy, "*"))
+            #
+            # to_rem_files = list(filter(lambda x: x.find(".jpg") == -1, files))
+            #
+            # for path in to_rem_files:
+            #     os.remove(path)
 
-            to_rem_files = list(filter(lambda x: x.find(".jpg") == -1, files))
-
-            for path in to_rem_files:
-                os.remove(path)
-
-            continue
             shutil.copytree(os.path.join(from_vds, class_to_copy, vid_copy),
                             os.path.join(to_frm_ds, "{}_{:04}".format(cls_index, new_vid_number)))
 
@@ -52,7 +51,7 @@ def missing_class(path):
     print classes
 
 if __name__ == '__main__':
-    missing_class("/home/bassel/data/oa_kinetics/frms")
-# copy_frames_to_frames_keeping_numbers("/home/bassel/data/oa_kinetics/lbls/class_index.txt",
-#                                       "/home/bassel/data/oa_kinetics/from frams",
-#                                       "/home/bassel/data/oa_kinetics/frms")
+    # missing_class("/home/bassel/data/oa_kinetics/frms")
+    copy_frames_to_frames_keeping_numbers("/home/bassel/data/oa_kinetics/lbls/class_index.txt",
+                                          "/home/bassel/data/oa_kinetics/from frams",
+                                          "/home/bassel/data/oa_kinetics/frms")
