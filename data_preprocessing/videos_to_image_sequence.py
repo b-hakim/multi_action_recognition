@@ -63,6 +63,8 @@ def select_all_frames_from_video(video_path, output_path):
 def SelectFramesFromVideosDataset(dataset_dir, output_path, n_threads=12):
 
     vids = glob.glob(os.path.join(dataset_dir,"*.mp4"))
+    if len(vids) == 0:
+        vids = glob.glob(os.path.join(dataset_dir,"*.avi"))
     vids.sort()
 
     block_size = len(vids)/n_threads
@@ -85,5 +87,5 @@ def SelectFramesFromVideosDataset(dataset_dir, output_path, n_threads=12):
 
 if __name__ == '__main__':
     # Note it deletes original video
-    SelectFramesFromVideosDataset('/home/bassel/data/oa_kinetics/videos',
-                          '/home/bassel/data/oa_kinetics/frms')
+    SelectFramesFromVideosDataset('/home/bassel/data/UCF101/videos',
+                          '/home/bassel/data/UCF101/frms')

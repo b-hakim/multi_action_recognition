@@ -88,10 +88,14 @@ class Spatial_CNN():
         print ('==> Build model and setup loss and optimizer')
         #build model
         self.model = resnet101(pretrained=False, channel=3, num_classes=self.num_classes).cuda()
+
+        from torchsummary import summary
+        summary(self.model, input_size=(3, 224, 224))
+
         #Loss function and optimizer
         self.criterion = nn.CrossEntropyLoss().cuda()
         self.optimizer = torch.optim.SGD(self.model.parameters(), self.lr, momentum=0.9)
-        self.scheduler = ReduceLROnPlateau(self.optimizer, 'min', patience=1,verbose=True)
+        self.scheduler = ReduceLROnPlateau(self.optimizer, 'min', patience=1, verbose=True)
 
     def run(self):
         self.build_model()

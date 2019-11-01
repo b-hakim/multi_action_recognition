@@ -16,6 +16,8 @@
 """Trains and Evaluates the MNIST network using a feed dictionary."""
 # pylint: disable=missing-docstring
 import os
+import shutil
+
 import time
 import sys
 from six.moves import xrange  # pylint: disable=redefined-builtin
@@ -114,7 +116,7 @@ def del_all_flags(FLAGS):
         FLAGS.__delattr__(keys)
 
 def run_training(ds_dir, mean_file, visual_dir, num_epochs, batch_size, training_file, testing_file,
-                 use_pretrained_model=False, model_filename="", fix_conv = False):
+                 use_pretrained_model=False, model_filename="", fix_conv = False, continue_from_last_step=False):
     del_all_flags(tf.flags.FLAGS)
     tf.reset_default_graph()
 
@@ -162,9 +164,10 @@ def run_training(ds_dir, mean_file, visual_dir, num_epochs, batch_size, training
     tower_grads1 = []
     tower_grads2 = []
     logits = []
-
-    opt_stable = tf.train.AdamOptimizer(1e-4)
-    opt_finetuning = tf.train.AdamOptimizer(1e-3)
+    opt_stable = tf.train.GradientDescentOptimizer(1e-4)
+    # opt_stable = tf.train.AdamOptimizer(1e-4)
+    opt_finetuning = tf.train.GradientDescentOptimizer(1e-3)
+    # opt_finetuning = tf.train.AdamOptimizer(1e-3)
 
     with tf.variable_scope('var_name') as var_scope:
         weights = {
@@ -235,8 +238,6 @@ def run_training(ds_dir, mean_file, visual_dir, num_epochs, batch_size, training
     train_op = tf.group(apply_gradient_op1, apply_gradient_op2, variables_averages_op)
     null_op = tf.no_op()
 
-    # Create a saver for writing training checkpoints.
-    saver = tf.train.Saver(weights.values() + biases.values())
     init = tf.global_variables_initializer()
 
     # Create a session for running Ops on the Graph.
@@ -245,16 +246,27 @@ def run_training(ds_dir, mean_file, visual_dir, num_epochs, batch_size, training
                     )
     sess.run(init)
 
-    if os.path.isfile(model_filename) and use_pretrained_model:
-        var_list = [v for v in tf.all_variables() if v.name.find("bout") == -1 and v.name.find("wout") == -1
-                    and v.name.find("bd") == -1 and v.name.find("wd") == -1]
+    offset_step = 0
 
-        var_list = filter(lambda x:  x.name.find("bout") == -1 and x.name.find("wout") == -1
-                                     and x.name.find("bd") == -1 and x.name.find("wd") == -1,
+    # Create a saver for writing training checkpoints.
+    saver = tf.train.Saver(weights.values() + biases.values())
+
+    if use_pretrained_model:
+        if not os.path.isfile(model_filename):
+            print "note that the provided model is not a file name"
+        # var_list = [v for v in tf.all_variables() if v.name.find("bout") == -1 and v.name.find("wout") == -1
+        #             and v.name.find("bd") == -1 and v.name.find("wd") == -1]
+        #
+        var_list = filter(lambda x:  x.name.find("c") != -1, #x.name.find("bout") == -1 and x.name.find("wout") == -1
+                                     #and x.name.find("bd") == -1 and x.name.find("wd") == -1,
                           weights.values()+biases.values())
 
         loader = tf.train.Saver(var_list)
-        loader.restore(sess, model_filename)
+        # loader.restore(sess, model_filename)
+        # tf.train.latest_checkpoint(os.path.dirname(model_filename))
+        saver.restore(sess, model_filename)
+        if continue_from_last_step:
+            offset_step = int(model_filename.split('-')[-1])
 
     # Create summary writter
     merged = tf.summary.merge_all()
@@ -265,7 +277,7 @@ def run_training(ds_dir, mean_file, visual_dir, num_epochs, batch_size, training
     next_start_pos_val = 0
     total_training_duration = 0
 
-    for step in xrange(FLAGS.num_steps):
+    for step in xrange(offset_step, FLAGS.num_steps):
         start_time = time.time()
         train_images, train_labels, next_start_pos_train, _, _ = input_data.read_clip_and_label(
                       ds_dir=ds_dir,
@@ -320,6 +332,11 @@ def run_training(ds_dir, mean_file, visual_dir, num_epochs, batch_size, training
             print ("accuracy: " + "{:.5f}".format(acc))
             test_writer.add_summary(summary, step)
 
+        # if step == 14698:
+        #     shutil.copy("model/c3d_ucf_model-14698.data-00000-of-00001", "layer5_non-transpose_oa18_kinetics_c3d_ucf_model-14698.data-00000-of-00001")
+        #     shutil.copy("model/c3d_ucf_model-14698.data", "layer5_non-transpose_oa18_kinetics_c3d_ucf_model-14698.index")
+        #     shutil.copy("model/c3d_ucf_model-14698.meta", "layer5_non-transpose_oa18_kinetics_c3d_ucf_model-14698.meta")
+
     print('Training time taken =', total_training_duration)
 
     import datetime
@@ -335,14 +352,23 @@ def run_training(ds_dir, mean_file, visual_dir, num_epochs, batch_size, training
 def main():
     if len(sys.argv) > 1:
         model_save_dir=sys.argv[1]
-
+    # oa_kinetics (pretrainnig)
     ds_dir = "/home/bassel/data/oa_kinetics/frms"
     training_file = "/home/bassel/data/oa_kinetics/lbls/actions_stack_list.txt"
     testing_file = "/home/bassel/data/oa_kinetics/lbls/dummy_test.txt"
     visual_dir = "./visual_dir"
     run_training(ds_dir, "../c3d_data_preprocessing/oa_kinetics_calculated_mean.npy", visual_dir,
-                 5, 32, training_file, testing_file)
+                 10, 32, training_file, testing_file, False, "model/c3d_ucf_model-14690",
+                 continue_from_last_step=False)
 
+    # #  oa18
+    # ds_dir = "/home/bassel/data/office-actions/office_actions_19/short_clips/unstabilized_resized_frms_112"
+    # training_file = "/home/bassel/data/office-actions/office_actions_19/short_clips/labels/train_stack_list.txt"
+    # testing_file = "/home/bassel/data/office-actions/office_actions_19/short_clips/labels/test_stack_list.txt"
+    # visual_dir = "./visual_dir"
+    # run_training(ds_dir, "../c3d_data_preprocessing/oa_kinetics_calculated_mean.npy", visual_dir,
+    #              10, 32, training_file, testing_file, True, "model/c3d_ucf_model-1842",
+    #              continue_from_last_step=True)
 
 if __name__ == '__main__':
     main()

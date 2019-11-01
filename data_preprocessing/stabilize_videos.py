@@ -1,5 +1,5 @@
 import threading
-# from vidstab import VidStab
+from vidstab import VidStab
 import glob
 import os
 import shutil

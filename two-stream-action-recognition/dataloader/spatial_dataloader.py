@@ -74,7 +74,7 @@ class spatial_dataloader():
         self.data_path=path
         self.frame_count ={}
         # split the training and testing videos
-        splitter = Office_Actions_splitter(trainfile, testfile)
+        splitter = Office_Actions_splitter(trainfile, testfile, True1)
         self.train_video, self.test_video, self.max_cls_ind = splitter.split_video()
         self.step_size = step_size
         self.experiment = experiment

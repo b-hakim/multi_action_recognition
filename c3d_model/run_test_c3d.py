@@ -4,21 +4,28 @@ from parse_class_index import parse_cls_indx
 from evaluate_predictions import evaluate_prediction
 
 
-ds_dir = "/home/bassel/data/office-actions/office_actions_19/short_clips/stabilized_resized_frms_112"
+ds_dir = "/home/bassel/data/office-actions/office_actions_19/short_clips/unstabilized_resized_frms_112"
 
 
-testing_files_dic = {"all_views":
+testing_files_dic = {
+                        "all_views":
                          ["/home/bassel/data/office-actions/office_actions_19/short_clips/labels/test_stack_list.txt",
-                          "conv3d_deepnetA_sport1m_iter_1900000_TF.model",
-                          "../c3d_data_preprocessing/dataset_calculated_mean.npy"],
-                 "side_view":
-                     ["/home/bassel/data/office-actions/office_actions_19/short_clips/labels/side_only_test_stack_list.txt",
-                       "conv3d_deepnetA_sport1m_iter_1900000_TF.model",
-                      "../c3d_data_preprocessing/side_action_dataset_calculated_mean.npy"],
-                  "front_view":
-                      ["/home/bassel/data/office-actions/office_actions_19/short_clips/labels/front_only_test_stack_list.txt",
-                       "conv3d_deepnetA_sport1m_iter_1900000_TF.model",
-                       "../c3d_data_preprocessing/front_action_dataset_calculated_mean.npy"]}
+                          # "conv3d_deepnetA_sport1m_iter_1900000_TF.model",
+                          "c3d_ucf_model-1842",
+                          "../c3d_data_preprocessing/oa_kinetics_calculated_mean.npy"],
+                    # "all_views_oa_kinetics":
+                    #     ["/home/bassel/data/oa_kinetics/lbls/oa18_test_stack_mapped_oa11_kinetics.txt",
+                    #     "c3d_ucf_model-14698",
+                    #     "../c3d_data_preprocessing/oa_kinetics_calculated_mean.npy"]
+                     }#,
+                 # "side_view":
+                 #     ["/home/bassel/data/office-actions/office_actions_19/short_clips/labels/side_only_test_stack_list.txt",
+                 #       "conv3d_deepnetA_sport1m_iter_1900000_TF.model",
+                 #      "../c3d_data_preprocessing/side_action_dataset_calculated_mean.npy"],
+                 #  "front_view":
+                 #      ["/home/bassel/data/office-actions/office_actions_19/short_clips/labels/front_only_test_stack_list.txt",
+                 #       "conv3d_deepnetA_sport1m_iter_1900000_TF.model",
+                 #       "../c3d_data_preprocessing/front_action_dataset_calculated_mean.npy"]}
 # testing_files_dic = {"stabilizied side view":
 #                          ["/home/bassel/data/office-actions/office_actions_19/short_clips/labels/side_only_test_stack_list.txt",
 #                        "stabilized_side_view_c3d_ucf_model-996",
@@ -27,7 +34,7 @@ testing_files_dic = {"all_views":
 TESTING_BATCH_SIZE=64
 
 cls_indx_path = "/home/bassel/data/office-actions/office_actions_19/short_clips/labels/class_index.txt"
-cls_indx = parse_cls_indx(cls_indx_path )
+cls_indx = parse_cls_indx(cls_indx_path)
 
 
 def calculate_cooccurence_matrix(file_path = 'predict_ret.txt'):
@@ -60,9 +67,9 @@ def file_save_coocurrence_matrix(file_path, coocurrence_matrix, cls_indx):
 if __name__ == '__main__':
 
     for perspective, (testing_file, model_name, mean_file) in testing_files_dic.items():
-            run_test(ds_dir, mean_file, "model/saved_models/"+model_name, testing_file, TESTING_BATCH_SIZE)
+            run_test(ds_dir, mean_file, "model/"+model_name, testing_file, TESTING_BATCH_SIZE)
             testing_accuracy, _, _ = evaluate_prediction()
-            file_path = "sports1M_cooccurence_matrix_{}.csv".format(perspective)
+            file_path = "oa18_on_kinectics_cooccurence_matrix_{}.csv".format(perspective)
 
             with open(file_path, 'w') as fw:
                 fw.write(str(testing_accuracy)+"\n")

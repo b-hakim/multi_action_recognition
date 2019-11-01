@@ -35,7 +35,7 @@ parser.add_argument('--step', default=1, type=int, metavar='N', help='step used 
 
 
 def main(ds_dir, trainfile, testfile, prefix, method, evaluate=False, resume_file='', step=1, ucf_format=False,
-         NUM_WORKERS=12, is_label_zero_based=False):
+         NUM_WORKERS=1, is_label_zero_based=False):
     global arg
     arg = parser.parse_args()
 
@@ -229,6 +229,9 @@ class Motion_CNN():
         #build model
         self.model = resnet101(pretrained=False, channel=self.channel, num_classes=self.num_classes).cuda()
         #print self.model
+        from torchsummary import summary
+        # summary(self.model, input_size=(20, 224, 224))
+
         #Loss function and optimizer
         self.criterion = nn.CrossEntropyLoss().cuda()
         self.optimizer = torch.optim.SGD(self.model.parameters(), self.lr, momentum=0.9)
@@ -554,8 +557,14 @@ if __name__=='__main__':
     #     trainfile='/home/bassel/data/office-actions/office_actions_19/short_clips/labels/front_only_trainlist.txt',
     #     testfile='/home/bassel/data/office-actions/office_actions_19/short_clips/labels/front_only_testlist.txt',
     #     prefix="front_view")
+    import constants
 
-    main("/home/bassel/data/office-actions/office_actions_19/short_clips/stabilized_flow_224/",
-        trainfile='/home/bassel/data/office-actions/office_actions_19/short_clips/labels/side_only_trainlist.txt',
-        testfile='/home/bassel/data/office-actions/office_actions_19/short_clips/labels/side_only_testlist.txt',
-         prefix="stabilized_side_view")
+    main("/media/bassel/My Future/Study/Masters/datasets/office_actions_19/office_actions_19/flow_224/",
+        trainfile='/home/bassel/data/office-actions/office_actions_19/short_clips/labels/trainlist.txt',
+        testfile='/home/bassel/data/office-actions/office_actions_19/short_clips/labels/testlist.txt',
+         prefix="all",
+         method=constants.EXPERIMENTS.MULTIPLE_STEPS__CLIPS_START_STEP_END,
+         step=1,
+         ucf_format=True,
+         is_label_zero_based=True
+         )

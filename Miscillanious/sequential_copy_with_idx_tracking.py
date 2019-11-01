@@ -51,7 +51,7 @@ def missing_class(path):
     print classes
 
 if __name__ == '__main__':
-    # missing_class("/home/bassel/data/oa_kinetics/frms")
-    copy_frames_to_frames_keeping_numbers("/home/bassel/data/oa_kinetics/lbls/class_index.txt",
-                                          "/home/bassel/data/oa_kinetics/from frams",
-                                          "/home/bassel/data/oa_kinetics/frms")
+    missing_class("/home/bassel/data/oa_kinetics/frms")
+    # copy_frames_to_frames_keeping_numbers("/home/bassel/data/oa_kinetics/lbls/class_index.txt",
+    #                                       "/home/bassel/data/oa_kinetics/from frams",
+    #                                       "/home/bassel/data/oa_kinetics/frms")

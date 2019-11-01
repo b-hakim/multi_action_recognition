@@ -148,10 +148,12 @@ def run_test(ds_dir, mean_file, model_name, test_list_file, batch_size):
     sess.run(init)
 
     # Restoring a saved model.
-    if not model_name.__contains__(".model"):
+    if not model_name.__contains__(".meta"):
         saver = tf.train.import_meta_graph(model_name+'.meta')
     else:
-        saver = tf.train.import_meta_graph(model_name)
+        # saver = tf.train.import_meta_graph(model_name)
+        var_list = [v for v in tf.trainable_variables()]
+        saver = tf.train.Saver(weights.values() + biases.values())
 
     saver.restore(sess, model_name)
 
@@ -225,8 +227,12 @@ import sys
 def main(_):
     # run_test(sys.argv[1])
     ds_dir = "/home/bassel/data/office-actions/office_actions_19/short_clips/resized_frms"
+    mean_file = "../c3d_data_preprocessing/oa_kinetics_calculated_mean.npy"
+    model_name = "c3d_ucf_model-14698"
+    testing_file = ""
+    TESTING_BATCH_SIZE = 16
+    run_test(ds_dir, mean_file, "model/" + model_name, testing_file, TESTING_BATCH_SIZE)
 
-    run_test(ds_dir, "model/c3d_ucf_model-2303",
-             "/home/bassel/data/office-actions/office_actions_19/short_clips/labels/test_stack_list.txt")
+
 if __name__ == '__main__':
     tf.app.run()

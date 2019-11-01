@@ -98,7 +98,7 @@ class motion_dataset(Dataset):
         elif self.experiment == constants.EXPERIMENTS.SUMMARIZE_VIDEO_10X_10Y_CHANNELS:
             # Our Method
             self.video, nb_clips = self.keys[idx].split('##')
-            self.clips_idx = int(nb_clips)
+            self.clips_idx = int(nb_clips.split(";")[0])
         elif self.experiment == constants.EXPERIMENTS.MULTIPLE_STEPS__CLIPS_START_STEP_END:
             self.video, nb_clips = self.keys[idx].split('##')
             self.clips_idx = nb_clips
@@ -209,7 +209,7 @@ class Motion_DataLoader():
             n,g = video.split('_',1)
             if self.experiment == constants.EXPERIMENTS.MAIN_AUTHOR:
                 # Author method
-                sampling_interval = int((self.frame_count[video]-10+1)/19)
+                sampling_interval = int((int(self.frame_count[video].split(";")[0])-10+1)/19)
                 for index in range(19):
                     nb_clips = index*sampling_interval
                     nb_clips = nb_clips + 1
@@ -249,7 +249,7 @@ class Motion_DataLoader():
         for video in self.train_video:
             video = video.replace(".mp4", "")
             if self.experiment == constants.EXPERIMENTS.MAIN_AUTHOR:
-                nb_frames = self.frame_count[video]-10+1
+                nb_frames = int(self.frame_count[video].split(";")[0])-10+1
                 key = video +'##' + str(nb_frames)
                 self.dic_video_train[key] = self.train_video[video]
             elif self.experiment == constants.EXPERIMENTS.SUMMARIZE_VIDEO_10X_10Y_CHANNELS:
